@@ -10,7 +10,7 @@ import { Baseurl } from "../../../constant/url";
 import toast from "react-hot-toast";
 import LoadingSpinner from "../../../components/common/LoadingSpinner";
 const SignUpPage = () => {
-  
+
   const [formData, setFormData] = useState({
     email: "",
     userName: "",
@@ -50,9 +50,7 @@ const SignUpPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(formData);
-    
-    // signup(formData)
+    signup(formData)
 
   };
 
@@ -118,7 +116,7 @@ const SignUpPage = () => {
             />
           </label>
           <button className='btn rounded-full btn-primary text-white'>
-            {isPending ? <LoadingSpinner/> : "Sign up"}
+            {isPending ? <LoadingSpinner /> : "Sign up"}
           </button>
           {isError && <p className='text-red-500'>{error.message}</p>}
         </form>

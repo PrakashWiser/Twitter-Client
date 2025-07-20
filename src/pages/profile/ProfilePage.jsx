@@ -163,7 +163,6 @@ const ProfilePage = () => {
                                     </button>
                                 )}
                             </div>
-
                             <div className='flex flex-col gap-4 mt-14 px-4'>
                                 <div className='flex flex-col'>
                                     <span className='font-bold text-lg'>{user?.fullName}</span>
