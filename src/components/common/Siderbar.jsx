@@ -2,18 +2,17 @@ import XSvg from "../svgs/X";
 import { MdHomeFilled } from "react-icons/md";
 import { IoNotifications } from "react-icons/io5";
 import { FaUser } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { BiLogOut } from "react-icons/bi";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { Baseurl } from "../../constant/url";
 import { fetchAuthUser } from "../../api/FetchauthUser";
+import { PiSmileySadDuotone } from "react-icons/pi";
 
 const Sidebar = () => {
-    const navigate = useNavigate();
     const queryClient = useQueryClient();
-
-    const { data: authUser, status } = useQuery({
+    const { data: authUser, } = useQuery({
         queryKey: ["authUser"],
         queryFn: fetchAuthUser,
         refetchOnWindowFocus: false,
@@ -60,8 +59,9 @@ const Sidebar = () => {
         <div className='md:flex-[2_2_0] w-18 max-w-52'>
             <div className='sticky top-0 left-0 h-screen flex flex-col border-r border-gray-700 w-20 md:w-full'>
                 <Link to='/' className='flex justify-center md:justify-start'>
-                    <XSvg className='px-2 w-12 h-12 rounded-full fill-white ' />
+                    <XSvg className='px-2 w-12 h-12  rounded-full fill-white ' />
                 </Link>
+
                 <ul className='flex flex-col gap-3 mt-4'>
                     <li className='flex justify-center md:justify-start'>
                         <Link
@@ -81,17 +81,19 @@ const Sidebar = () => {
                             <span className='text-lg hidden md:block'>Notifications</span>
                         </Link>
                     </li>
-                    <li className='flex justify-center md:justify-start'>
-                        <Link
-                            to={`/profile/${authUser?.userName}`}
-                            className='flex gap-3 items-center transition-all rounded-full duration-300 py-2 pl-2 pr-4 max-w-fit cursor-pointer'
-                        >
-                            <FaUser className='w-6 h-6' />
-                            <span className='text-lg hidden md:block'>Profile</span>
-                        </Link>
-                    </li>
+                    {authUser && (
+                        <li className='flex justify-center md:justify-start'>
+                            <Link
+                                to={`/profile/${authUser?.userName}`}
+                                className='flex gap-3 items-center transition-all rounded-full duration-300 py-2 pl-2 pr-4 max-w-fit cursor-pointer'
+                            >
+                                <FaUser className='w-6 h-6' />
+                                <span className='text-lg hidden md:block'>Profile</span>
+                            </Link>
+                        </li>
+                    )}
                 </ul>
-                {authUser && (
+                {authUser ? (
                     <Link
                         to={`/profile/${authUser?.userName}`}
                         className='mt-auto mb-10 flex gap-2 items-start transition-all duration-300 py-2 px-4 rounded-full'
@@ -112,6 +114,16 @@ const Sidebar = () => {
                             />
                         </div>
                     </Link>
+                ) : (
+                    <div className="mt-auto mb-10 px-4">
+                        <Link to="/login">
+                            <button className='btn btn-primary rounded-full btn-sm text-white px-8'>
+                                <PiSmileySadDuotone />
+                                Login
+
+                            </button>
+                        </Link>
+                    </div>
                 )}
             </div>
         </div>

@@ -143,11 +143,9 @@ const Post = ({ post }) => {
                 </div>
                 <div className='flex flex-col flex-1'>
                     <div className='flex gap-2 items-center'>
-                        <Link to={`/profile/${postOwner?.userName}`} className='font-bold'>
-                            {postOwner?.fullName}
-                        </Link>
+
                         <span className='text-gray-700 flex gap-1 text-sm'>
-                            <Link to={`/profile/${postOwner?.userName}`}>@{postOwner?.userName}</Link>
+                            <Link to={`/profile/${postOwner?.userName}`}>{postOwner?.userName}</Link>
                             <span>·</span>
                             <span>{formattedDate}</span>
                         </span>
@@ -161,14 +159,16 @@ const Post = ({ post }) => {
                             </span>
                         )}
                     </div>
-                    <div className='flex flex-col gap-3 overflow-hidden'>
-                        <span>{post?.text}</span>
+                    <div className="flex flex-col gap-3 overflow-hidden">
+                        <span className="break-words">{post?.text}</span>
                         {post?.img && (
-                            <img
-                                src={post?.img}
-                                className='h-80 object-contain rounded-lg border border-gray-700'
-                                alt=''
-                            />
+                            <div className="rounded-2xl border border-gray-700 overflow-hidden max-w-full">
+                                <img
+                                    src={post?.img}
+                                    alt="Post"
+                                    className="w-full object-fill max-h-[400px] sm:rounded-2xl"
+                                />
+                            </div>
                         )}
                     </div>
                     <div className='flex justify-between mt-3'>

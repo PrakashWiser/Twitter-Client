@@ -16,7 +16,9 @@ const CreatePost = () => {
     const { data: authUser } = useQuery({
         queryKey: ["authUser"], queryFn
             : fetchAuthUser,
+        staleTime: 1000 * 60 * 5,
         refetchOnWindowFocus: false,
+        retry: false,
     });
     const queryClient = useQueryClient();
 

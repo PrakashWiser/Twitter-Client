@@ -1,67 +1,74 @@
-import { Routes, Route, Navigate } from "react-router-dom"
-import HomePage from "./pages/home/HomePage"
-import LoginPage from "./pages/auth/login/LoginPage"
-import SignUpPage from "./pages/auth/signup/SignUpPage"
-import Sidebar from "./components/common/Siderbar"
-import RightPanel from "./components/common/RigntPanel"
-import NotificationPage from "./pages/notification/NotificationPage"
-import ProfilePage from "./pages/profile/ProfilePage"
-import { Toaster } from "react-hot-toast"
-import { useQuery } from "@tanstack/react-query"
-import { Baseurl } from "./constant/url"
-import LoadingSpinner from "./components/common/LoadingSpinner"
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import HomePage from "./pages/home/HomePage";
+import LoginPage from "./pages/auth/login/LoginPage";
+import SignUpPage from "./pages/auth/signup/SignUpPage";
+import Sidebar from "./components/common/Siderbar";
+import RightPanel from "./components/common/RigntPanel";
+import NotificationPage from "./pages/notification/NotificationPage";
+import ProfilePage from "./pages/profile/ProfilePage";
+import { Toaster } from "react-hot-toast";
+import { useQuery } from "@tanstack/react-query";
+import { ZoomLoader } from "./components/common/LoadingSpinner";
+import { fetchAuthUser, fetchSuggestedUsers } from "./api/FetchauthUser";
 
 function App() {
-  const { data: authUser, isLoading } = useQuery({
-    queryKey: ["authUser"],
-    queryFn: async () => {
-      try {
-        const res = await fetch(`${Baseurl}auth/me`, {
-          method: "GET",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json"
-          }
-        }
-        )
-        const data = await res.json()
-        if (data.error) {
-          return null
-        }
-        if (!res.ok) {
-          throw new Error(data.error || "Smothing went wrong!")
-        }
-        return data
-      } catch (error) {
-        throw error
-      }
-    },
-    retry: false
-  })
+  const location = useLocation();
+  const isAuthPage = location.pathname === "/login" || location.pathname === "/signup";
 
-  if (isLoading) {
+  const {
+    data: authUser,
+    isLoading: loadingUser,
+  } = useQuery({
+    queryKey: ["authUser"],
+    queryFn: fetchAuthUser,
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
+    retry: false,
+  });
+
+  const { data: suggestedUsers } = useQuery({
+    queryKey: ["suggestedUsers"],
+    queryFn: fetchSuggestedUsers,
+    enabled: !!authUser,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  if (loadingUser) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <LoadingSpinner size="lg" />
+        <ZoomLoader />
       </div>
-    )
+    );
   }
-  
+
+  if (!authUser && !isAuthPage) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (authUser && isAuthPage) {
+    return <Navigate to="/" replace />;
+  }
+
+  const shouldShowSidebar = !!authUser;
+  const shouldShowRightPanel = !!authUser && suggestedUsers?.length > 0;
+  const layoutClass = shouldShowRightPanel
+    ? "flex max-w-6xl mx-auto"
+    : "flex w-full";
 
   return (
-    <div className="flex max-w-6xl mx-auto ">
-      {authUser && <Sidebar />}
+    <div className={layoutClass}>
+      {shouldShowSidebar && <Sidebar />}
       <Routes>
-        <Route path="/" element={authUser ? <HomePage /> : <Navigate to="/login" />} />
-        <Route path="/login" element={!authUser ? <LoginPage /> : <Navigate to="/" />} />
-        <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to="/" />} />
-        <Route path="/notifications" element={authUser ? <NotificationPage /> : <Navigate to="/login" />} />
-        <Route path="/profile/:username" element={authUser ? <ProfilePage /> : <Navigate to="/login" />} />
+        <Route path="/" element={<HomePage />} />
+        <Route path="/profile/:username" element={<ProfilePage />} />
+        <Route path="/notifications" element={<NotificationPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignUpPage />} />
       </Routes>
-      {authUser && <RightPanel />}
+      {shouldShowRightPanel && <RightPanel suggestedUsers={suggestedUsers} />}
       <Toaster />
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
