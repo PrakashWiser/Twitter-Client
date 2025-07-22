@@ -15,13 +15,12 @@ const ChatOffcanvas = ({ show, handleClose, username, recipientUserId, currentUs
     const pickerRef = useRef(null);
     const socket = useRef(null);
 
-    const normalizedBaseurl = Baseurl.replace(/\/+$/, "");
 
     useEffect(() => {
         if (!currentUserId) return;
 
         if (!socket.current) {
-            socket.current = io(normalizedBaseurl, {
+            socket.current = io(Baseurl, {
                 withCredentials: true,
             });
 
@@ -41,12 +40,12 @@ const ChatOffcanvas = ({ show, handleClose, username, recipientUserId, currentUs
             socket.current?.disconnect();
             socket.current = null;
         };
-    }, [currentUserId, normalizedBaseurl]);
+    }, [currentUserId, Baseurl]);
 
     useEffect(() => {
         const fetchMessageHistory = async () => {
             try {
-                const response = await fetch(`${normalizedBaseurl}/messages/history?recipient=${username}`, {
+                const response = await fetch(`${Baseurl}messages/history?recipient=${username}`, {
                     method: "GET",
                     credentials: "include",
                 });
@@ -86,7 +85,7 @@ const ChatOffcanvas = ({ show, handleClose, username, recipientUserId, currentUs
         if (username) {
             fetchMessageHistory();
         }
-    }, [username, normalizedBaseurl]);
+    }, [username, Baseurl]);
 
     useEffect(() => {
         messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -134,7 +133,7 @@ const ChatOffcanvas = ({ show, handleClose, username, recipientUserId, currentUs
         };
 
         try {
-            const response = await fetch(`${normalizedBaseurl}/messages/send`, {
+            const response = await fetch(`${Baseurl}/messages/send`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
