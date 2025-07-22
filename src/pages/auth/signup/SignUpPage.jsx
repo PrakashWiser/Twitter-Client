@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import XSvg from "../../../components/svgs/X";
 import { MdOutlineMail } from "react-icons/md";
@@ -10,7 +10,7 @@ import { Baseurl } from "../../../constant/url";
 import toast from "react-hot-toast";
 import LoadingSpinner from "../../../components/common/LoadingSpinner";
 const SignUpPage = () => {
-
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     userName: "",
@@ -42,6 +42,7 @@ const SignUpPage = () => {
     },
     onSuccess: () => {
       toast.success("Signup Sucessfully..");
+      navigate("/");
     },
     onError: (error) => {
       toast.error(error || "User Error...");

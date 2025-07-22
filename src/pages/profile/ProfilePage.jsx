@@ -14,12 +14,12 @@ import { fetchAuthUser } from "../../api/FetchauthUser";
 import EditProfileModal from "./EditProfileModel";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 import useUpdateUserProfile from "../../hooks/useUpdateUserProfile";
-import ChatOffcanvas from "../../components/common/ChatOffcanvas";  // Import the chat component
+import ChatOffcanvas from "../../components/common/ChatOffcanvas";
 
 const ProfilePage = () => {
-  const [showChat, setShowChat] = useState(false);  // State for chat visibility
-  const handleOpenChat = () => setShowChat(true);  // Open chat
-  const handleCloseChat = () => setShowChat(false);  // Close chat
+  const [showChat, setShowChat] = useState(false);
+  const handleOpenChat = () => setShowChat(true);
+  const handleCloseChat = () => setShowChat(false);
 
   const [coverImg, setCoverImg] = useState(null);
   const [profileImg, setProfileImg] = useState(null);
@@ -43,30 +43,22 @@ const ProfilePage = () => {
     refetch,
     isRefetching,
   } = useQuery({
-    queryKey: ["userProfile"],
+    queryKey: ["userProfile", username],
     queryFn: async () => {
-      try {
-        const res = await fetch(`${Baseurl}user/profile/${username}`, {
-          method: "GET",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        const data = await res.json();
-        if (!res.ok) {
-          throw new Error(data.error || "Something went wrong");
-        }
-        return data;
-      } catch (error) {
-        throw new Error(error);
-      }
+      const res = await fetch(`${Baseurl}user/profile/${username}`, {
+        method: "GET",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Something went wrong");
+      return data;
     },
   });
 
   const isMyProfile = authUser?._id === user?._id;
   const memberSinceDate = formatMemberSinceDate(user?.createdAt);
-  const amIFollowing = authUser?.following.includes(user?._id);
+  const amIFollowing = authUser?.following?.includes(user?._id);
 
   const handleImgChange = (e, state) => {
     const file = e.target.files[0];
@@ -93,12 +85,13 @@ const ProfilePage = () => {
         {!isLoading && !isRefetching && !user && (
           <p className="text-center text-lg mt-4">User not found</p>
         )}
+
         <div className="flex flex-col">
           {!isLoading && !isRefetching && user && (
             <>
               <div className="relative group/cover">
                 <img
-                  src={coverImg || user?.coverImg || "/cover.png"}
+                  src={coverImg || user.coverImg || "/cover.png"}
                   className="h-52 w-full object-cover"
                   alt="cover image"
                 />
@@ -128,36 +121,36 @@ const ProfilePage = () => {
                   <div className="w-32 rounded-full relative group/avatar">
                     <img
                       src={profileImg || user?.profileImg || "/avatar-placeholder.png"}
+                      alt="profile"
                     />
-                    <div className="absolute top-5 right-3 p-1 bg-primary rounded-full bg-opacity-75 cursor-pointer">
-                      {isMyProfile && (
-                        <MdEdit
-                          className="w-4 h-4 text-white"
-                          onClick={() => profileImgRef.current.click()}
-                        />
-                      )}
-                    </div>
+                    {isMyProfile && (
+                      <div
+                        className="absolute top-5 right-3 p-1 bg-primary rounded-full bg-opacity-75 cursor-pointer"
+                        onClick={() => profileImgRef.current.click()}
+                      >
+                        <MdEdit className="w-4 h-4 text-white" />
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
+
               <div className="flex justify-end px-4 gap-3 mt-5">
                 {isMyProfile && <EditProfileModal authUser={authUser} />}
-                <button
-                  className="btn btn-primary rounded-full btn-sm text-white px-4 ml-2"
-                  onClick={handleOpenChat} // Open chat modal
-                >
-                  Message
-                </button>
                 {!isMyProfile && (
                   <button
                     className="btn btn-outline rounded-full btn-sm"
-                    onClick={() => follow(user?._id)}
+                    onClick={() => follow(user._id)}
                   >
-                    {isPending && "Loading..."}
-                    {!isPending && amIFollowing && "Unfollow"}
-                    {!isPending && !amIFollowing && "Follow"}
+                    {isPending ? "Loading..." : amIFollowing ? "Unfollow" : "Follow"}
                   </button>
                 )}
+                {authUser._id !== user._id && <button
+                  className="btn btn-primary rounded-full btn-sm text-white px-4"
+                  onClick={handleOpenChat}
+                >
+                  Message
+                </button>}
                 {(coverImg || profileImg) && (
                   <button
                     className="btn btn-primary rounded-full btn-sm text-white px-4 ml-2"
@@ -171,6 +164,7 @@ const ProfilePage = () => {
                   </button>
                 )}
               </div>
+
               <div className="flex flex-col gap-4 mt-14 px-4">
                 <div className="flex flex-col">
                   <span className="font-bold text-lg">{user?.fullName}</span>
@@ -181,17 +175,15 @@ const ProfilePage = () => {
                 <div className="flex gap-2 flex-wrap">
                   {user?.link && (
                     <div className="flex gap-1 items-center">
-                      <>
-                        <FaLink className="w-3 h-3 text-slate-500" />
-                        <a
-                          href={user?.link}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-sm text-blue-500 hover:underline"
-                        >
-                          {user?.link}
-                        </a>
-                      </>
+                      <FaLink className="w-3 h-3 text-slate-500" />
+                      <a
+                        href={user?.link}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-sm text-blue-500 hover:underline"
+                      >
+                        {user?.link}
+                      </a>
                     </div>
                   )}
                   <div className="flex gap-2 items-center">
@@ -199,6 +191,7 @@ const ProfilePage = () => {
                     <span className="text-sm text-slate-500">{memberSinceDate}</span>
                   </div>
                 </div>
+
                 <div className="flex gap-2">
                   <div className="flex gap-1 items-center">
                     <span className="font-bold text-xs">{user?.following?.length}</span>
@@ -210,9 +203,11 @@ const ProfilePage = () => {
                   </div>
                 </div>
               </div>
+
               <div className="flex w-full border-b border-gray-700 mt-4">
                 <div
-                  className="flex justify-center flex-1 p-3 transition duration-300 relative cursor-pointer"
+                  className={`flex justify-center flex-1 p-3 relative cursor-pointer ${feedType === "posts" ? "text-primary" : ""
+                    }`}
                   onClick={() => setFeedType("posts")}
                 >
                   Posts
@@ -221,7 +216,8 @@ const ProfilePage = () => {
                   )}
                 </div>
                 <div
-                  className="flex justify-center flex-1 p-3 transition duration-300 relative cursor-pointer"
+                  className={`flex justify-center flex-1 p-3 relative cursor-pointer ${feedType === "likes" ? "text-primary" : ""
+                    }`}
                   onClick={() => setFeedType("likes")}
                 >
                   Likes
@@ -232,12 +228,16 @@ const ProfilePage = () => {
               </div>
             </>
           )}
+
           <Posts feedType={feedType} username={username} userId={user?._id} />
         </div>
+
         <ChatOffcanvas
           show={showChat}
           handleClose={handleCloseChat}
           username={user?.userName}
+          recipientUserId={user?._id}
+          currentUserId={authUser?._id}
         />
       </div>
     </>
