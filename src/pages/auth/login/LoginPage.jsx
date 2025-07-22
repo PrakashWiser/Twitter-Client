@@ -46,7 +46,7 @@ const LoginPage = () => {
       });
     },
     onError: (err) => {
-      toast.error(err);
+      toast.error(err.message);
     }
   });
 

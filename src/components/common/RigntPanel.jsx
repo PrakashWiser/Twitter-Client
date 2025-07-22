@@ -1,3 +1,8 @@
+import { useState } from "react";
+import useFollow from "../../hooks/useFollow";
+import { Link } from "react-router-dom";
+import LoadingSpinner from "./LoadingSpinner";
+
 const RightPanel = ({ suggestedUsers = [], isLoading }) => {
     const [followedIds, setFollowedIds] = useState([]);
     const [loadingUserId, setLoadingUserId] = useState(null);

@@ -15,12 +15,12 @@ export const ZoomLoader = () => {
                 animate={{ scale: [1, 1.2, 1] }}
                 transition={{
                     repeat: Infinity,
-                    duration: 1,
+                    duration: 1.2,
                     ease: "easeInOut"
                 }}
                 className=" text-primary"
             >
-                <XSvg className="w-full h-full  fill-white" />
+                <XSvg className="h-30 w-30  fill-white" />
             </motion.div>
         </div>
     );
