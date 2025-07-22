@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import Posts from "../../components/common/Posts";
 import ProfileHeaderSkeleton from "../../components/skeletons/ProfileHeaderSkeleton";
-import { FaArrowLeft } from "react-icons/fa6";
 import { IoCalendarOutline } from "react-icons/io5";
 import { FaLink } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
@@ -20,7 +19,6 @@ const ProfilePage = () => {
   const [showChat, setShowChat] = useState(false);
   const handleOpenChat = () => setShowChat(true);
   const handleCloseChat = () => setShowChat(false);
-
   const [coverImg, setCoverImg] = useState(null);
   const [profileImg, setProfileImg] = useState(null);
   const [feedType, setFeedType] = useState("posts");
@@ -91,7 +89,7 @@ const ProfilePage = () => {
             <>
               <div className="relative group/cover">
                 <img
-                  src={coverImg || user.coverImg || "/cover.png"}
+                  src={coverImg || user?.coverImg || "/cover.png"}
                   className="h-52 w-full object-cover"
                   alt="cover image"
                 />
@@ -238,6 +236,7 @@ const ProfilePage = () => {
           username={user?.userName}
           recipientUserId={user?._id}
           currentUserId={authUser?._id}
+          profileImg={user?.profileImg}
         />
       </div>
     </>
