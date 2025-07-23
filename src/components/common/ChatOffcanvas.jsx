@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect, useRef } from "react";
 import { FaTimes } from "react-icons/fa";
 import { FiSmile, FiCheck } from "react-icons/fi";
@@ -7,7 +8,14 @@ import io from "socket.io-client";
 import EmojiPicker from "emoji-picker-react";
 import { Baseurl } from "../../constant/url";
 
-const ChatOffcanvas = ({ show, handleClose, username, recipientUserId, currentUserId, profileImg }) => {
+const ChatOffcanvas = ({
+    show,
+    handleClose,
+    username,
+    recipientUserId,
+    currentUserId,
+    profileImg,
+}) => {
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState([]);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -15,24 +23,20 @@ const ChatOffcanvas = ({ show, handleClose, username, recipientUserId, currentUs
     const pickerRef = useRef(null);
     const socket = useRef(null);
 
-
     useEffect(() => {
         if (!currentUserId) return;
 
         if (!socket.current) {
-            socket.current = io(Baseurl, {
-                withCredentials: true,
-            });
+            socket.current = io(Baseurl, { withCredentials: true });
 
             socket.current.emit("register", currentUserId);
 
             socket.current.on("receive_message", (newMessage) => {
-                setMessages((prev) => {
-                    if (!prev.some((msg) => msg.id === newMessage.id)) {
-                        return [...prev, newMessage];
-                    }
-                    return prev;
-                });
+                setMessages((prev) =>
+                    prev.some((msg) => msg.id === newMessage.id)
+                        ? prev
+                        : [...prev, newMessage]
+                );
             });
         }
 
@@ -40,66 +44,61 @@ const ChatOffcanvas = ({ show, handleClose, username, recipientUserId, currentUs
             socket.current?.disconnect();
             socket.current = null;
         };
-    }, [currentUserId, Baseurl]);
+    }, [currentUserId,messages]);
 
     useEffect(() => {
         const fetchMessageHistory = async () => {
             try {
-                const response = await fetch(`${Baseurl}messages/history?recipient=${username}`, {
-                    method: "GET",
-                    credentials: "include",
-                });
+                const response = await fetch(
+                    `${Baseurl}messages/history?recipient=${username}`,
+                    {
+                        method: "GET",
+                        credentials: "include",
+                    }
+                );
                 const data = await response.json();
 
                 if (response.ok) {
                     const mappedMessages = data.messages?.map((item) => ({
-                        id: item.id || `${Date.now()}-${Math.random()}`,
+                        id: item._id || `${Date.now()}-${Math.random()}`,
                         text: item.message,
                         sender: item.sender,
-                        timestamp: item.timestamp
-                            ? new Date(item.timestamp).toLocaleTimeString("en-IN", {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                                timeZone: "Asia/Kolkata",
-                            })
-                            : new Date().toLocaleTimeString("en-IN", {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                                timeZone: "Asia/Kolkata",
-                            }),
-                        date: item.timestamp
-                            ? new Date(item.timestamp).toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata" })
-                            : new Date().toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata" }),
+                        timestamp: new Date(item.timestamp).toLocaleTimeString("en-IN", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            timeZone: "Asia/Kolkata",
+                        }),
+                        date: new Date(item.timestamp).toLocaleDateString("en-IN", {
+                            timeZone: "Asia/Kolkata",
+                        }),
                         status: item.status || "sent",
                     })) || [];
 
                     setMessages(mappedMessages);
                 } else {
-                    console.error("Failed to fetch message history:", data.error);
+                    console.error("Failed to fetch messages:", data.error);
                 }
             } catch (error) {
-                console.error("Error fetching message history:", error);
+                console.error("Error fetching messages:", error);
             }
         };
 
-        if (username) {
-            fetchMessageHistory();
-        }
-    }, [username, Baseurl]);
+        if (username) fetchMessageHistory();
+    }, [username]);
 
     useEffect(() => {
         messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
 
     useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (pickerRef.current && !pickerRef.current.contains(event.target)) {
+        const handleClickOutside = (e) => {
+            if (pickerRef.current && !pickerRef.current.contains(e.target)) {
                 setShowEmojiPicker(false);
             }
         };
 
-        const handleKeyDown = (event) => {
-            if (event.key === "Escape") {
+        const handleKeyDown = (e) => {
+            if (e.key === "Escape") {
                 setShowEmojiPicker(false);
             }
         };
@@ -123,26 +122,27 @@ const ChatOffcanvas = ({ show, handleClose, username, recipientUserId, currentUs
     const handleSendMessage = async () => {
         if (!message.trim() || !recipientUserId) return;
 
-        const newMessageObject = {
+        const localMessage = {
             id: `${Date.now()}-${Math.random()}`,
             text: message,
             sender: currentUserId,
-            timestamp: new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Kolkata" }),
-            date: new Date().toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata" }),
+            timestamp: new Date().toLocaleTimeString("en-IN", {
+                hour: "2-digit",
+                minute: "2-digit",
+                timeZone: "Asia/Kolkata",
+            }),
+            date: new Date().toLocaleDateString("en-IN", {
+                timeZone: "Asia/Kolkata",
+            }),
             status: "sent",
         };
 
         try {
             const response = await fetch(`${Baseurl}messages/send`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: { "Content-Type": "application/json" },
                 credentials: "include",
-                body: JSON.stringify({
-                    message,
-                    recipient: username,
-                }),
+                body: JSON.stringify({ message, recipient: username }),
             });
 
             const data = await response.json();
@@ -152,9 +152,10 @@ const ChatOffcanvas = ({ show, handleClose, username, recipientUserId, currentUs
                     message,
                     recipientId: recipientUserId,
                     senderId: currentUserId,
+                    messageId: data.data?._id,
                 });
 
-                setMessages((prev) => [...prev, newMessageObject]);
+                setMessages((prev) => [...prev, localMessage]);
                 setMessage("");
             } else {
                 console.error("Failed to send message:", data.error);
@@ -165,24 +166,24 @@ const ChatOffcanvas = ({ show, handleClose, username, recipientUserId, currentUs
     };
 
     const formatMessageDate = (dateStr) => {
-        const messageDate = new Date(dateStr);
-        const today = new Date().toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata" });
+        const today = new Date().toLocaleDateString("en-IN", {
+            timeZone: "Asia/Kolkata",
+        });
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayStr = yesterday.toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata" });
+        const yesterdayStr = yesterday.toLocaleDateString("en-IN", {
+            timeZone: "Asia/Kolkata",
+        });
 
-        if (dateStr === today) {
-            return "Today";
-        } else if (dateStr === yesterdayStr) {
-            return "Yesterday";
-        } else {
-            return new Date(dateStr).toLocaleDateString("en-IN", {
-                month: "long",
-                day: "numeric",
-                year: "numeric",
-                timeZone: "Asia/Kolkata",
-            });
-        }
+        if (dateStr === today) return "Today";
+        if (dateStr === yesterdayStr) return "Yesterday";
+
+        return new Date(dateStr).toLocaleDateString("en-IN", {
+            month: "long",
+            day: "numeric",
+            year: "numeric",
+            timeZone: "Asia/Kolkata",
+        });
     };
 
     const MessageStatus = ({ status }) => {
@@ -225,9 +226,7 @@ const ChatOffcanvas = ({ show, handleClose, username, recipientUserId, currentUs
                             <img
                                 src={profileImg}
                                 alt={`${username}'s profile`}
-                                width={40}
-                                height={40}
-                                className="rounded-full object-cover"
+                                className="w-10 h-10 rounded-full object-cover"
                             />
                         ) : (
                             <span className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-sm font-semibold text-gray-600">
@@ -251,17 +250,20 @@ const ChatOffcanvas = ({ show, handleClose, username, recipientUserId, currentUs
                         }
                         acc.push(
                             <div
-                                key={msg.id}
-                                className={`flex items-end gap-2 ${msg.sender === currentUserId ? "justify-end" : "justify-start"}`}
+                                key={msg?.id}
+                                className={`flex items-end gap-2 ${msg?.sender === currentUserId ? "justify-end" : "justify-start"
+                                    }`}
                             >
                                 <div
-                                    className={`rounded-lg px-4 py-2 max-w-xs text-sm ${msg.sender === currentUserId ? "bg-blue-100 text-right text-black" : "bg-gray-100 text-left text-black"
+                                    className={`rounded-lg px-4 py-2 max-w-xs text-sm ${msg?.sender === currentUserId
+                                        ? "bg-blue-100 text-right text-black"
+                                        : "bg-gray-100 text-left text-black"
                                         }`}
                                 >
-                                    <p>{msg.text}</p>
+                                    <p>{msg?.text}</p>
                                     <div className="flex items-center justify-end mt-1 space-x-1">
-                                        <span className="text-[10px] text-gray-500">{msg.timestamp}</span>
-                                        {msg.sender === currentUserId && <MessageStatus status={msg.status} />}
+                                        <span className="text-[10px] text-gray-500">{msg?.timestamp}</span>
+                                        {msg?.sender === currentUserId && <MessageStatus status={msg?.status} />}
                                     </div>
                                 </div>
                             </div>
@@ -277,11 +279,13 @@ const ChatOffcanvas = ({ show, handleClose, username, recipientUserId, currentUs
                     >
                         <FiSmile className="w-6 h-6" />
                     </button>
+
                     {showEmojiPicker && (
                         <div ref={pickerRef} className="absolute bottom-12 left-4 z-50">
                             <EmojiPicker onEmojiClick={handleEmojiClick} />
                         </div>
                     )}
+
                     <input
                         type="text"
                         className="flex-grow p-2 border rounded-md text-black focus:outline-none focus:ring-2 focus:ring-blue-300 text-sm"
@@ -290,7 +294,11 @@ const ChatOffcanvas = ({ show, handleClose, username, recipientUserId, currentUs
                         onChange={(e) => setMessage(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
                     />
-                    <button className="text-blue-600 hover:text-blue-800" onClick={handleSendMessage}>
+
+                    <button
+                        className="text-blue-600 hover:text-blue-800"
+                        onClick={handleSendMessage}
+                    >
                         <VscSend className="w-6 h-6" />
                     </button>
                 </div>
