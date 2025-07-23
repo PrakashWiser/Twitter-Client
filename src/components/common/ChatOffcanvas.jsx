@@ -133,7 +133,7 @@ const ChatOffcanvas = ({ show, handleClose, username, recipientUserId, currentUs
         };
 
         try {
-            const response = await fetch(`${Baseurl}/messages/send`, {
+            const response = await fetch(`${Baseurl}messages/send`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
