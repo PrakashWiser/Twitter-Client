@@ -27,6 +27,6 @@ yarn-error.log*
 Thumbs.db
 
 # Firebase config
-src/firebase.js
+firebase/config
 # or for TypeScript:
-src/firebase-config.ts
+firebase-config.ts
