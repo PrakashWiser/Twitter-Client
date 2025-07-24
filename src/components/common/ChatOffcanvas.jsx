@@ -26,7 +26,7 @@ const ChatOffcanvas = ({
 
     const getFirebaseToken = async () => {
         try {
-            const user = auth.currentUser;
+            const user = auth?.currentUser;
             if (!user) {
                 throw new Error("No authenticated user. Please sign in.");
             }
@@ -52,7 +52,6 @@ const ChatOffcanvas = ({
                 .catch((error) => {
                     console.error("Failed to authenticate Socket.IO:", error.message);
                 });
-
             socket.current.on("connect", () => console.log("Socket.IO connected:", socket.current.id));
             socket.current.on("connect_error", (error) => console.error("Socket.IO connection error:", error.message));
             socket.current.on("error", (error) => console.error("Socket.IO error:", error.message));
@@ -61,24 +60,24 @@ const ChatOffcanvas = ({
                 setMessages((prev) => {
                     if (prev.some((msg) => msg.id === newMessage.messageId)) {
                         return prev.map((msg) =>
-                            msg.id === newMessage.messageId ? { ...msg, status: newMessage.status } : msg
+                            msg.id === newMessage?.messageId ? { ...msg, status: newMessage?.status } : msg
                         );
                     }
                     return [
                         ...prev,
                         {
-                            id: newMessage.messageId,
-                            text: newMessage.message,
-                            sender: newMessage.sender,
-                            timestamp: new Date(newMessage.timestamp).toLocaleTimeString("en-IN", {
+                            id: newMessage?.messageId,
+                            text: newMessage?.message,
+                            sender: newMessage?.sender,
+                            timestamp: new Date(newMessage?.timestamp).toLocaleTimeString("en-IN", {
                                 hour: "2-digit",
                                 minute: "2-digit",
                                 timeZone: "Asia/Kolkata",
                             }),
-                            date: new Date(newMessage.timestamp).toLocaleDateString("en-IN", {
+                            date: new Date(newMessage?.timestamp).toLocaleDateString("en-IN", {
                                 timeZone: "Asia/Kolkata",
                             }),
-                            status: newMessage.status,
+                            status: newMessage?.status,
                         },
                     ];
                 });
@@ -86,7 +85,7 @@ const ChatOffcanvas = ({
             socket.current.on("message_status_updated", ({ messageId, status }) => {
                 console.log("Status updated:", { messageId, status });
                 setMessages((prev) =>
-                    prev.map((msg) => (msg.id === messageId ? { ...msg, status } : msg))
+                    prev.map((msg) => (msg?.id === messageId ? { ...msg, status } : msg))
                 );
             });
         }
@@ -107,18 +106,18 @@ const ChatOffcanvas = ({
                 const data = await response.json();
                 if (response.ok) {
                     const mappedMessages = data.messages?.map((item) => ({
-                        id: item._id,
-                        text: item.message,
-                        sender: item.sender,
-                        timestamp: new Date(item.timestamp).toLocaleTimeString("en-IN", {
+                        id: item?._id,
+                        text: item?.message,
+                        sender: item?.sender,
+                        timestamp: new Date(item?.timestamp).toLocaleTimeString("en-IN", {
                             hour: "2-digit",
                             minute: "2-digit",
                             timeZone: "Asia/Kolkata",
                         }),
-                        date: new Date(item.timestamp).toLocaleDateString("en-IN", {
+                        date: new Date(item?.timestamp).toLocaleDateString("en-IN", {
                             timeZone: "Asia/Kolkata",
                         }),
-                        status: item.status || "sent",
+                        status: item?.status || "sent",
                     })) || [];
                     setMessages(mappedMessages);
                 } else {
@@ -129,8 +128,10 @@ const ChatOffcanvas = ({
             }
         };
 
-        if (username) fetchMessageHistory();
-    }, [username]);
+        if (username && show) {
+            fetchMessageHistory();
+        }
+    }, [username, show]);
 
     useEffect(() => {
         if (messages.length > 0) {
