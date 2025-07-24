@@ -11,7 +11,7 @@ import { Toaster } from "react-hot-toast";
 import { useQuery } from "@tanstack/react-query";
 import { ZoomLoader } from "./components/common/LoadingSpinner";
 import { fetchAuthUser, fetchSuggestedUsers } from "./api/FetchauthUser";
-import { messaging, getToken, onMessage } from "./firebase";
+import { messaging, getToken, onMessage } from "./firebase/config";
 
 function App() {
   const location = useLocation();

@@ -25,3 +25,8 @@ yarn-error.log*
 
 # Windows
 Thumbs.db
+
+# Firebase config
+src/firebase.js
+# or for TypeScript:
+src/firebase-config.ts
