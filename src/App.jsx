@@ -35,9 +35,8 @@ function App() {
     staleTime: 1000 * 60 * 5,
   });
 
-  // ✅ Push Notification Setup
   useEffect(() => {
-    if (!authUser) return; // wait until user is logged in
+    if (!authUser) return;
 
     if ("Notification" in window && Notification.permission !== "granted") {
       Notification.requestPermission().then(async (permission) => {
@@ -51,7 +50,6 @@ function App() {
     }
 
     const unsubscribe = onMessage(messaging, (payload) => {
-      console.log("🔔 Message received in foreground:", payload);
       const { title, body } = payload.notification;
 
       new Notification(title, {
@@ -78,16 +76,20 @@ function App() {
   const layoutClass = shouldShowRightPanel ? "flex max-w-6xl mx-auto" : "flex w-full";
 
   return (
-    <div className={layoutClass}>
-      {shouldShowSidebar && <Sidebar />}
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/profile/:username" element={<ProfilePage />} />
-        <Route path="/notifications" element={<NotificationPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignUpPage />} />
-      </Routes>
-      {shouldShowRightPanel && <RightPanel suggestedUsers={suggestedUsers} />}
+    <div className="min-h-screen bg-base-100">
+      <div className={layoutClass}>
+        {shouldShowSidebar && <Sidebar />}
+        <div className="flex-1 min-h-screen overflow-y-auto mb-15 md:mb-0">
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/profile/:username" element={<ProfilePage />} />
+            <Route path="/notifications" element={<NotificationPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignUpPage />} />
+          </Routes>
+        </div>
+        {shouldShowRightPanel && <RightPanel suggestedUsers={suggestedUsers} />}
+      </div>
       <Toaster />
     </div>
   );

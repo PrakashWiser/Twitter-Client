@@ -38,18 +38,14 @@ const LoginPage = () => {
       return data;
     },
     onSuccess: () => {
-      toast.success("Login Successfully");  
+      toast.success("Login Successful!");
       queryClient.invalidateQueries({ queryKey: ["authUser"] });
-      setFormData({
-        userName: "",
-        password: "",
-      });
+      setFormData({ userName: "", password: "" });
     },
     onError: (err) => {
       toast.error(err.message);
-    }
+    },
   });
-
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -59,51 +55,60 @@ const LoginPage = () => {
     e.preventDefault();
     loginMutation(formData);
   };
-  return (
-    <div className='max-w-screen-xl mx-auto flex h-screen'>
-      <div className='flex-1 hidden lg:flex items-center  justify-center'>
-        <XSvg className='lg:w-2/3 fill-white' />
-      </div>
-      <div className='flex-1 flex flex-col justify-center items-center'>
-        <form className='flex gap-4 flex-col' onSubmit={handleSubmit}>
-          <XSvg className='w-24 lg:hidden fill-white' />
-          <h1 className='text-4xl font-extrabold text-white'>{"Let's"} go.</h1>
-          <label className='input input-bordered rounded flex items-center gap-2'>
-            <FaUserTie />
-            <input
-              type='text'
-              className='grow'
-              placeholder='username'
-              name='userName'
-              onChange={handleInputChange}
-              value={formData?.userName}
-            />
-          </label>
 
-          <label className='input input-bordered rounded flex items-center gap-2'>
-            <MdPassword />
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-[#121212] to-[#1e1e1e] flex justify-center items-center px-4 py-10">
+      <div className="bg-[#181818] shadow-xl rounded-xl w-full max-w-md p-8">
+        <div className="flex flex-col items-center mb-6">
+          <XSvg className="w-14 fill-white mb-2" />
+          <h2 className="text-white text-3xl font-bold">Welcome back</h2>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="flex items-center gap-2 bg-[#2a2a2a] rounded px-4 py-2 focus-within:ring-2 ring-blue-600">
+            <FaUserTie className="text-white text-xl" />
             <input
-              type='password'
-              className='grow'
-              placeholder='Password'
-              name='password'
+              type="text"
+              name="userName"
+              required
+              value={formData.userName}
               onChange={handleInputChange}
-              value={formData?.password}
+              placeholder="Username"
+              className="bg-transparent w-full text-white outline-none placeholder-gray-400"
             />
-          </label>
-          <button className='btn rounded-full btn-primary text-white'>
+          </div>
+          <div className="flex items-center gap-2 bg-[#2a2a2a] rounded px-4 py-2 focus-within:ring-2 ring-blue-600">
+            <MdPassword className="text-white text-xl" />
+            <input
+              type="password"
+              name="password"
+              required
+              value={formData.password}
+              onChange={handleInputChange}
+              placeholder="Password"
+              className="bg-transparent w-full text-white outline-none placeholder-gray-400"
+            />
+          </div>
+
+          {isError && <p className="text-red-500">{error.message}</p>}
+
+          <button
+            type="submit"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-full transition duration-200"
+          >
             {isPending ? <LoadingSpinner /> : "Login"}
           </button>
-          {isError && <p className='text-red-500'>{error?.message}</p>}
         </form>
-        <div className='flex flex-col gap-2 mt-4'>
-          <p className='text-white text-lg'>{"Don't"} have an account?</p>
-          <Link to='/signup'>
-            <button className='btn rounded-full btn-primary text-white btn-outline w-full'>Sign up</button>
+
+        <p className="text-gray-400 text-center mt-6">
+          Don’t have an account?{" "}
+          <Link to="/signup" className="text-blue-500 hover:underline">
+            Sign up
           </Link>
-        </div>
+        </p>
       </div>
     </div>
   );
 };
+
 export default LoginPage;

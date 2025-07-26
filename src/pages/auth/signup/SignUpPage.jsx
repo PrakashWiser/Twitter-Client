@@ -1,12 +1,17 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import XSvg from "../../../components/svgs/X";
-import { MdOutlineMail, MdPassword, MdVisibility, MdVisibilityOff } from "react-icons/md";
+import {
+  MdOutlineMail,
+  MdPassword,
+  MdVisibility,
+  MdVisibilityOff,
+} from "react-icons/md";
 import { FaUser } from "react-icons/fa";
 import { MdDriveFileRenameOutline } from "react-icons/md";
 import { useMutation } from "@tanstack/react-query";
 import { Baseurl } from "../../../constant/url";
 import toast from "react-hot-toast";
+import XSvg from "../../../components/svgs/X";
 import LoadingSpinner from "../../../components/common/LoadingSpinner";
 
 const SignUpPage = () => {
@@ -20,141 +25,120 @@ const SignUpPage = () => {
 
   const [showPassword, setShowPassword] = useState(false);
 
-  const { mutate: signup, isError, isPending, error } = useMutation({
+  const { mutate: signup, isPending } = useMutation({
     mutationFn: async ({ email, userName, fullName, password }) => {
-      try {
-        const res = await fetch(`${Baseurl}auth/signup`, {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({ email, userName, fullName, password }),
-        });
-        const data = await res.json();
-        if (!res.ok) {
-          throw new Error(data.error || "Something went wrong!");
-        }
-        return data;
-      } catch (error) {
-        throw error;
-      }
+      const res = await fetch(`${Baseurl}auth/signup`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, userName, fullName, password }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Something went wrong!");
+      return data;
     },
     onSuccess: () => {
-      toast.success("Signup successfully!");
+      toast.success("Signup successful!");
       navigate("/");
     },
     onError: (error) => {
-      toast.error(error.message || "Signup error!");
+      toast.error(error.message || "Signup failed!");
     },
   });
+
+  const handleChange = (e) =>
+    setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleSubmit = (e) => {
     e.preventDefault();
     signup(formData);
   };
 
-  const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
   return (
-    <div className="max-w-screen-xl mx-auto flex h-screen px-10">
-      <div className="flex-1 hidden lg:flex items-center justify-center">
-        <XSvg className="lg:w-2/3 fill-white" />
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-[#121212] to-[#1e1e1e] flex justify-center items-center px-4 py-10">
+      <div className="bg-[#181818] shadow-xl rounded-xl w-full max-w-md p-8">
+        <div className="flex flex-col items-center mb-6">
+          <XSvg className="w-14 fill-white mb-2" />
+          <h2 className="text-white text-3xl text-center md:text-start font-bold">Create your account</h2>
+        </div>
 
-      <div className="flex-1 flex flex-col justify-center items-center">
-        <form
-          className="lg:w-2/3 mx-auto md:mx-20 flex gap-4 flex-col"
-          onSubmit={handleSubmit}
-        >
-          <div className="flex flex-col items-center">
-            <XSvg className="w-24 lg:hidden fill-white" />
-            <h1 className="text-4xl font-extrabold text-white">Join today.</h1>
-          </div>
-
-          <label className="input input-bordered rounded flex items-center gap-2">
-            <MdOutlineMail />
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="flex items-center gap-2 bg-[#2a2a2a] rounded px-4 py-2 focus-within:ring-2 ring-blue-600">
+            <MdOutlineMail className="text-white text-xl" />
             <input
               type="email"
-              className="grow"
-              placeholder="Email"
               name="email"
-              onChange={handleInputChange}
-              value={formData.email}
               required
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Email"
+              className="bg-transparent w-full text-white outline-none placeholder-gray-400"
             />
-          </label>
-
-          <div className="flex gap-4 flex-wrap">
-            <label className="input input-bordered rounded flex items-center gap-2 flex-1">
-              <FaUser />
-              <input
-                type="text"
-                className="grow"
-                placeholder="Username"
-                name="userName"
-                onChange={handleInputChange}
-                value={formData.userName}
-                required
-              />
-            </label>
-
-            <label className="input input-bordered rounded flex items-center gap-2 flex-1">
-              <MdDriveFileRenameOutline />
-              <input
-                type="text"
-                className="grow"
-                placeholder="Full Name"
-                name="fullName"
-                onChange={handleInputChange}
-                value={formData.fullName}
-                required
-              />
-            </label>
           </div>
+          <div className="flex gap-4">
+            <div className="flex items-center gap-2 bg-[#2a2a2a] rounded px-4 py-2 flex-1 focus-within:ring-2 ring-blue-600">
+              <FaUser className="text-white text-xl" />
+              <input
+                type="text"
+                name="userName"
+                required
+                value={formData.userName}
+                onChange={handleChange}
+                placeholder="Username"
+                className="bg-transparent w-full text-white outline-none placeholder-gray-400"
+              />
+            </div>
 
-          <label className="input input-bordered rounded flex items-center gap-2">
-            <MdPassword />
+            <div className="flex items-center gap-2 bg-[#2a2a2a] rounded px-4 py-2 flex-1 focus-within:ring-2 ring-blue-600">
+              <MdDriveFileRenameOutline className="text-white text-xl" />
+              <input
+                type="text"
+                name="fullName"
+                required
+                value={formData.fullName}
+                onChange={handleChange}
+                placeholder="Full Name"
+                className="bg-transparent w-full text-white outline-none placeholder-gray-400"
+              />
+            </div>
+          </div>
+          <div className="flex items-center gap-2 bg-[#2a2a2a] rounded px-4 py-2 focus-within:ring-2 ring-blue-600">
+            <MdPassword className="text-white text-xl" />
             <input
               type={showPassword ? "text" : "password"}
-              className="grow"
-              placeholder="Password"
               name="password"
-              onChange={handleInputChange}
-              value={formData.password}
               required
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Password"
+              className="bg-transparent w-full text-white outline-none placeholder-gray-400"
             />
             <button
               type="button"
               onClick={() => setShowPassword((prev) => !prev)}
-              className="focus:outline-none"
+              className="text-white"
             >
-              {showPassword ? (
-                <MdVisibilityOff className="text-gray-500" />
-              ) : (
-                <MdVisibility className="text-gray-500" />
-              )}
+              {showPassword ? <MdVisibilityOff /> : <MdVisibility />}
             </button>
-          </label>
+          </div>
 
-          <button className="btn rounded-full btn-primary text-white">
-            {isPending ? <LoadingSpinner /> : "Sign up"}
+          <button
+            type="submit"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-full transition duration-200"
+          >
+            {isPending ? <LoadingSpinner /> : "Sign Up"}
           </button>
-
-          {isError && <p className="text-red-500">{error.message}</p>}
         </form>
 
-        <div className="flex flex-col lg:w-2/3 gap-2 mt-4">
-          <p className="text-white text-lg">Already have an account?</p>
-          <Link to="/login">
-            <button className="btn rounded-full btn-primary text-white btn-outline w-full">
-              Sign in
-            </button>
+        <p className="text-gray-400 text-center mt-6">
+          Already have an account?{" "}
+          <Link to="/login" className="text-blue-500 hover:underline">
+            Sign in
           </Link>
-        </div>
+        </p>
       </div>
     </div>
   );
